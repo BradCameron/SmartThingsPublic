@@ -1,353 +1,664 @@
+def appVersion() {"6.7+001-%REL_ENV%"}	// Major.Minor+buildNo-Env
+def helpURL() {"https://www.ActionTiles.com/at6g/help"}
+def getSensorCapabilities() {"https://%REL_ENV%.ActionTiles.com/sensors.json"}
+def getPowerThresholds() {"https://%REL_ENV%.ActionTiles.com/powerthresholds.json"}
+//def getSensorCapabilities() {"https://www.ActionTiles.com/sensors.json"}
+//def getPowerThresholds() {"https://www.ActionTiles.com/powerthresholds.json"}
+
+include 'asynchttp_v1'
 /**
- *  Copyright 2015 SmartThings
+ * ActionTiles (Connect) %REL_ENV%
  *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License. You may obtain a copy of the License at:
+ * Copyright 2017 Thingterfaces LP
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * Program, code and related communication is strictly confidential.
+ *	 Permission granted to shared ONLY between the authors (Alex & Terry of Thingterfaces LP)
+ *	 and authorized representatives / employees of SmartThings.
+ *	 Please take care and minimize distribution. Destroy copies when no longer required.
  *
- *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
- *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
- *  for the specific language governing permissions and limitations under the License.
- *
- *  SmartWeather Station
- *
- *  Author: SmartThings
- *
- *  Date: 2013-04-30
  */
-metadata {
-	definition (name: "SmartWeather Station Tile", namespace: "smartthings", author: "SmartThings") {
-		capability "Illuminance Measurement"
-		capability "Temperature Measurement"
-		capability "Relative Humidity Measurement"
-		capability "Sensor"
 
-		attribute "localSunrise", "string"
-		attribute "localSunset", "string"
-		attribute "city", "string"
-		attribute "timeZoneOffset", "string"
-		attribute "weather", "string"
-		attribute "wind", "string"
-		attribute "weatherIcon", "string"
-		attribute "forecastIcon", "string"
-		attribute "feelsLike", "string"
-		attribute "percentPrecip", "string"
-		attribute "alert", "string"
-		attribute "alertKeys", "string"
-		attribute "sunriseDate", "string"
-		attribute "sunsetDate", "string"
-
-		command "refresh"
-	}
-
-	preferences {
-		input "zipCode", "text", title: "Zip Code (optional)", required: false
-	}
-
-	tiles {
-		valueTile("temperature", "device.temperature") {
-			state "default", label:'${currentValue}°',
-				backgroundColors:[
-					[value: 31, color: "#153591"],
-					[value: 44, color: "#1e9cbb"],
-					[value: 59, color: "#90d2a7"],
-					[value: 74, color: "#44b621"],
-					[value: 84, color: "#f1d801"],
-					[value: 95, color: "#d04e00"],
-					[value: 96, color: "#bc2323"]
-				]
-		}
-
-		valueTile("humidity", "device.humidity", decoration: "flat") {
-			state "default", label:'${currentValue}% humidity'
-		}
-
-		standardTile("weatherIcon", "device.weatherIcon", decoration: "flat") {
-			state "chanceflurries", icon:"st.custom.wu1.chanceflurries", label: ""
-			state "chancerain", icon:"st.custom.wu1.chancerain", label: ""
-			state "chancesleet", icon:"st.custom.wu1.chancesleet", label: ""
-			state "chancesnow", icon:"st.custom.wu1.chancesnow", label: ""
-			state "chancetstorms", icon:"st.custom.wu1.chancetstorms", label: ""
-			state "clear", icon:"st.custom.wu1.clear", label: ""
-			state "cloudy", icon:"st.custom.wu1.cloudy", label: ""
-			state "flurries", icon:"st.custom.wu1.flurries", label: ""
-			state "fog", icon:"st.custom.wu1.fog", label: ""
-			state "hazy", icon:"st.custom.wu1.hazy", label: ""
-			state "mostlycloudy", icon:"st.custom.wu1.mostlycloudy", label: ""
-			state "mostlysunny", icon:"st.custom.wu1.mostlysunny", label: ""
-			state "partlycloudy", icon:"st.custom.wu1.partlycloudy", label: ""
-			state "partlysunny", icon:"st.custom.wu1.partlysunny", label: ""
-			state "rain", icon:"st.custom.wu1.rain", label: ""
-			state "sleet", icon:"st.custom.wu1.sleet", label: ""
-			state "snow", icon:"st.custom.wu1.snow", label: ""
-			state "sunny", icon:"st.custom.wu1.sunny", label: ""
-			state "tstorms", icon:"st.custom.wu1.tstorms", label: ""
-			state "cloudy", icon:"st.custom.wu1.cloudy", label: ""
-			state "partlycloudy", icon:"st.custom.wu1.partlycloudy", label: ""
-			state "nt_chanceflurries", icon:"st.custom.wu1.nt_chanceflurries", label: ""
-			state "nt_chancerain", icon:"st.custom.wu1.nt_chancerain", label: ""
-			state "nt_chancesleet", icon:"st.custom.wu1.nt_chancesleet", label: ""
-			state "nt_chancesnow", icon:"st.custom.wu1.nt_chancesnow", label: ""
-			state "nt_chancetstorms", icon:"st.custom.wu1.nt_chancetstorms", label: ""
-			state "nt_clear", icon:"st.custom.wu1.nt_clear", label: ""
-			state "nt_cloudy", icon:"st.custom.wu1.nt_cloudy", label: ""
-			state "nt_flurries", icon:"st.custom.wu1.nt_flurries", label: ""
-			state "nt_fog", icon:"st.custom.wu1.nt_fog", label: ""
-			state "nt_hazy", icon:"st.custom.wu1.nt_hazy", label: ""
-			state "nt_mostlycloudy", icon:"st.custom.wu1.nt_mostlycloudy", label: ""
-			state "nt_mostlysunny", icon:"st.custom.wu1.nt_mostlysunny", label: ""
-			state "nt_partlycloudy", icon:"st.custom.wu1.nt_partlycloudy", label: ""
-			state "nt_partlysunny", icon:"st.custom.wu1.nt_partlysunny", label: ""
-			state "nt_sleet", icon:"st.custom.wu1.nt_sleet", label: ""
-			state "nt_rain", icon:"st.custom.wu1.nt_rain", label: ""
-			state "nt_sleet", icon:"st.custom.wu1.nt_sleet", label: ""
-			state "nt_snow", icon:"st.custom.wu1.nt_snow", label: ""
-			state "nt_sunny", icon:"st.custom.wu1.nt_sunny", label: ""
-			state "nt_tstorms", icon:"st.custom.wu1.nt_tstorms", label: ""
-			state "nt_cloudy", icon:"st.custom.wu1.nt_cloudy", label: ""
-			state "nt_partlycloudy", icon:"st.custom.wu1.nt_partlycloudy", label: ""
-		}
-		valueTile("feelsLike", "device.feelsLike", decoration: "flat") {
-			state "default", label:'feels like ${currentValue}°'
-		}
-
-		valueTile("wind", "device.wind", decoration: "flat") {
-			state "default", label:'wind ${currentValue} mph'
-		}
-
-		valueTile("weather", "device.weather", decoration: "flat") {
-			state "default", label:'${currentValue}'
-		}
-
-		valueTile("city", "device.city", decoration: "flat") {
-			state "default", label:'${currentValue}'
-		}
-
-		valueTile("percentPrecip", "device.percentPrecip", decoration: "flat") {
-			state "default", label:'${currentValue}% precip'
-		}
-
-		standardTile("refresh", "device.weather", decoration: "flat") {
-			state "default", label: "", action: "refresh", icon:"st.secondary.refresh"
-		}
-
-		valueTile("alert", "device.alert", width: 3, height: 1, decoration: "flat") {
-			state "default", label:'${currentValue}'
-		}
-
-		valueTile("rise", "device.localSunrise", decoration: "flat") {
-			state "default", label:'${currentValue}'
-		}
-
-		valueTile("set", "device.localSunset", decoration: "flat") {
-			state "default", label:'${currentValue}'
-		}
-
-		valueTile("light", "device.illuminance", decoration: "flat") {
-			state "default", label:'${currentValue} lux'
-		}
-
-		main(["temperature", "weatherIcon","feelsLike"])
-		details(["temperature", "humidity", "weatherIcon","feelsLike","wind","weather", "city","percentPrecip", "refresh","alert","rise","set","light"])}
+definition(
+	name: "ActionTiles (Connect) %REL_ENV%",
+	namespace: "ActionTiles",
+	author: "Thingterfaces LP",
+	description: "Web service to communicate with ActionTiles Dashboard (https://ActionTiles.com).",
+	category: "Convenience",
+	iconUrl: "https://%REL_ENV%.ActionTiles.com/icons/saX1.png",
+	iconX2Url: "https://%REL_ENV%.ActionTiles.com/icons/saX2.png",
+	iconX3Url: "https://%REL_ENV%.ActionTiles.com/icons/saX3.png",
+	oauth: [displayName: "ActionTiles (Connect) %REL_ENV%", displayLink: "https://ActionTiles.com/help/authorize"]
+)
+{
+	appSetting "apiPath"
+	appSetting "apiKey"
 }
-
-// parse events into attributes
-def parse(String description) {
-	log.debug "Parsing '${description}'"
+	
+preferences(oauthPage: "deviceAuthorization") {
+	page(name: "deviceAuthorization", install: true, uninstall: true) {
+		section( "ActionTiles (Connect) %REL_ENV%" ) {
+			paragraph "ActionTiles™ - A SmartThings web client.\nThe homepage for your home!™" +
+					"\nCopyright © 2017 Thingterfaces LP"
+			href url:"${helpURL()}/saconfig", style:"embedded", required:false, title:"Help & more information...", description:"www.ActionTiles.com/help", image:"https://%REL_ENV%.ActionTiles.com/icons/saX1.png"
+		}
+		
+		section( "SmartApp can only access the specific Things that you authorize here (plus arm your Smart Home Monitor, run Routines, and change Modes). \n" +
+				"\nActionTiles suggests that you authorize ALL or MOST of your Things, so that they will available in the ActionTiles Web App's Inventory. \n" +
+				"\n[Version ${appVersion()}] \n"
+			 ) {
+			input "sensors", "capability.sensor", title:"1) Select any or all of your Things:", multiple: true, required: false
+			input "actuators", "capability.actuator", title:"2) Add any or all Things missing from the previous list (duplicates OK):", multiple: true, required: false
+			input "switches", "capability.switch", title:"3) Add any or all Things missing from the previous lists (duplicates OK):", multiple: true, required: false
+			input "batteries", "capability.battery", title:"4) If desired Things are not available in any above lists, try this list:", multiple: true, required: false
+			input "temperatures", "capability.temperatureMeasurement", title:"5) Or this final list (Contact Support@ActionTiles.com if any Thing is still not shown):", multiple: true, required: false
+		}
+		
+		if (state) {
+			section( "ActionTiles Stream Status" ) {
+				if (isLocationStreaming()) {
+					paragraph "$location.name is currently streaming event data to ActionTiles."
+				} else {
+					paragraph "$location.name is currently not streaming any event data to ActionTiles."
+				}
+			}
+		}
+		remove("Uninstall", "Are you sure you want to uninstall ActionTiles?")
+	}
 }
 
 def installed() {
-	runPeriodically(3600, poll)
+	log.info "Installing the SmartApp"
+	initialize()
 }
 
-def uninstalled() {
+def updated() {
+	log.info "Updating the SmartApp"
+	initialize()
+}
+
+def initialize() {
+	log.info "Initializing the SmartApp"
+	state.SmartAppVersion = appVersion()
+	log.info "ActionTiles (Connect) SmartApp Version: $state.SmartAppVersion"
+	checkEventStreamStatus([initialize: true])
+	[status: "ok"]
+}
+
+def reset() {
+	log.info "Resetting the SmartApp"
+	state.remove("throttle")
+	unsubscribe()
 	unschedule()
 }
 
-// handle commands
-def poll() {
-	log.debug "WUSTATION: Executing 'poll', location: ${location.name}"
+def uninstalled() {
+	log.info "Uninstalling ActionTiles"
+	revokeAccessToken()
+	
+	sendToFB([
+		"locations/$location.id": [name: escapeUTF8(location.name), uninstalled: true, muted: true, timestamp: [".sv" : "timestamp"]],
+		"properties/$location.id" : [uninstalled: true, muted: true, timestamp: [".sv" : "timestamp"]]
+	])
+}
 
-	// Current conditions
-	def obs = get("conditions")?.current_observation
-	if (obs) {
-		def weatherIcon = obs.icon_url.split("/")[-1].split("\\.")[0]
+def getWeatherProperties() {["city", "weather", "wind", "weatherIcon", "forecastIcon", "feelsLike", "percentPrecip", "localSunrise", "localSunset"]}
 
-		if(getTemperatureScale() == "C") {
-			send(name: "temperature", value: Math.round(obs.temp_c), unit: "C")
-			send(name: "feelsLike", value: Math.round(obs.feelslike_c as Double), unit: "C")
-		} else {
-			send(name: "temperature", value: Math.round(obs.temp_f), unit: "F")
-			send(name: "feelsLike", value: Math.round(obs.feelslike_f as Double), unit: "F")
-		}
-		
-		send(name: "humidity", value: obs.relative_humidity[0..-2] as Integer, unit: "%")
-		send(name: "weather", value: obs.weather)
-		send(name: "weatherIcon", value: weatherIcon, displayed: false)
-		send(name: "wind", value: Math.round(obs.wind_mph) as String, unit: "MPH") // as String because of bug in determining state change of 0 numbers
+def subscribe() {
+	log.info "Subscribing to events"
+	
+	subscribe(location, "mode", locationEventHandler)
+	subscribe(location, "alarmSystemStatus", locationEventHandler)
+	
+	asynchttp_v1.get(subscribeCallback, [uri: getSensorCapabilities()])
+	
+	return [status : "ok"]
+}
 
-		if (obs.local_tz_offset != device.currentValue("timeZoneOffset")) {
-			send(name: "timeZoneOffset", value: obs.local_tz_offset, isStateChange: true)
-		}
+def powerThresholdsCallback(response, data) {
+	log.info "Fetched PowerThresholds: $response.json"
+	state.powerThreshold0100 = response.json.powerThreshold0100
+	state.powerThreshold0500 = response.json.powerThreshold0500
+	state.powerThreshold1000 = response.json.powerThreshold1000
+	state.powerThreshold1000 = response.json.powerThreshold1000
+	state.powerThreshold5000 = response.json.powerThreshold5000
+	state.powerThresholdOver = response.json.powerThresholdOver
+}
 
-		def cityValue = "${obs.display_location.city}, ${obs.display_location.state}"
-		if (cityValue != device.currentValue("city")) {
-			send(name: "city", value: cityValue, isStateChange: true)
-		}
-
-		// Sunrise / sunset
-		def a = get("astronomy")?.moon_phase
-		def today = localDate("GMT${obs.local_tz_offset}")
-		def ltf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
-		ltf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
-		def utf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-		utf.setTimeZone(TimeZone.getTimeZone("GMT"))
-
-		def sunriseDate = ltf.parse("${today} ${a.sunrise.hour}:${a.sunrise.minute}")
-		def sunsetDate = ltf.parse("${today} ${a.sunset.hour}:${a.sunset.minute}")
-
-        def tf = new java.text.SimpleDateFormat("h:mm a")
-        tf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
-        def localSunrise = "${tf.format(sunriseDate)}"
-        def localSunset = "${tf.format(sunsetDate)}"
-        send(name: "localSunrise", value: localSunrise, descriptionText: "Sunrise today is at $localSunrise")
-        send(name: "localSunset", value: localSunset, descriptionText: "Sunset today at is $localSunset")
-
-		send(name: "illuminance", value: estimateLux(sunriseDate, sunsetDate, weatherIcon))
-
-		// Forecast
-		def f = get("forecast")
-		def f1= f?.forecast?.simpleforecast?.forecastday
-		if (f1) {
-			def icon = f1[0].icon_url.split("/")[-1].split("\\.")[0]
-			def value = f1[0].pop as String // as String because of bug in determining state change of 0 numbers
-			send(name: "percentPrecip", value: value, unit: "%")
-			send(name: "forecastIcon", value: icon, displayed: false)
-		}
-		else {
-			log.warn "Forecast not found"
-		}
-
-		// Alerts
-		def alerts = get("alerts")?.alerts
-		def newKeys = alerts?.collect{it.type + it.date_epoch} ?: []
-		log.debug "WUSTATION: newKeys = $newKeys"
-		log.trace device.currentState("alertKeys")
-		def oldKeys = device.currentState("alertKeys")?.jsonValue
-		log.debug "WUSTATION: oldKeys = $oldKeys"
-
-		def noneString = "no current weather alerts"
-		if (!newKeys && oldKeys == null) {
-			send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
-			send(name: "alert", value: noneString, descriptionText: "${device.displayName} has no current weather alerts", isStateChange: true)
-		}
-		else if (newKeys != oldKeys) {
-			if (oldKeys == null) {
-				oldKeys = []
-			}
-			send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
-
-			def newAlerts = false
-			alerts.each {alert ->
-				if (!oldKeys.contains(alert.type + alert.date_epoch)) {
-					def msg = "${alert.description} from ${alert.date} until ${alert.expires}"
-					send(name: "alert", value: pad(alert.description), descriptionText: msg, isStateChange: true)
-					newAlerts = true
+def subscribeCallback(response, data) {
+	log.info "subscribe to $response.json"
+	
+	def devices = getUniqueDeviceSet()
+	log.debug "subscribeCallback $devices" 
+	
+	devices?.each {device ->
+		device.capabilities.each { capability ->
+			if (response.json[capability.name]) {
+				capability.attributes?.each {attribute ->
+					log.debug("subscribing $device $attribute.name")
+					subscribe(device, "$attribute.name", sensorEventHandler)
 				}
 			}
-
-			if (!newAlerts && device.currentValue("alert") != noneString) {
-				send(name: "alert", value: noneString, descriptionText: "${device.displayName} has no current weather alerts", isStateChange: true)
+		}
+		
+		if (isWeather(device)) {
+			getWeatherProperties().each {
+				subscribe(device, it, sensorEventHandler)
 			}
 		}
 	}
-	else {
-		log.warn "No response from Weather Underground API"
-	}
 }
 
-def refresh() {
-	poll()
-}
-
-def configure() {
-	poll()
-}
-
-private pad(String s, size = 25) {
-	def n = (size - s.size()) / 2
-	if (n > 0) {
-		def sb = ""
-		n.times {sb += " "}
-		sb += s
-		n.times {sb += " "}
-		return sb
-	}
-	else {
-		return s
-	}
-}
-
-
-private get(feature) {
-	getWeatherFeature(feature, zipCode)
-}
-
-private localDate(timeZone) {
-	def df = new java.text.SimpleDateFormat("yyyy-MM-dd")
-	df.setTimeZone(TimeZone.getTimeZone(timeZone))
-	df.format(new Date())
-}
-
-private send(map) {
-	log.debug "WUSTATION: event: $map"
-	sendEvent(map)
-}
-
-private estimateLux(sunriseDate, sunsetDate, weatherIcon) {
-	def lux = 0
-	def now = new Date().time
-	if (now > sunriseDate.time && now < sunsetDate.time) {
-		//day
-		switch(weatherIcon) {
-			case 'tstorms':
-				lux = 200
-				break
-			case ['cloudy', 'fog', 'rain', 'sleet', 'snow', 'flurries',
-				'chanceflurries', 'chancerain', 'chancesleet',
-				'chancesnow', 'chancetstorms']:
-				lux = 1000
-				break
-			case 'mostlycloudy':
-				lux = 2500
-				break
-			case ['partlysunny', 'partlycloudy', 'hazy']:
-				lux = 7500
-				break
-			default:
-				//sunny, clear
-				lux = 10000
+def refreshWeather() {
+	try {
+		def devices = [sensors ?: []].flatten()
+		devices.each {
+			if (isWeather(it) && it.hasCommand("refresh")) {
+				it.refresh()
+			}
 		}
+	} catch (e) {
+		log.error("failed to refresh weather")
+		log.error(e)
+	}
+}
 
-		//adjust for dusk/dawn
-		def afterSunrise = now - sunriseDate.time
-		def beforeSunset = sunsetDate.time - now
-		def oneHour = 1000 * 60 * 60
+def checkEventStreamStatus(data) {
+	log.info "Checking Event Stream Status"
+	
+	def uri = "${getSanitizedFBUri()}/eventStreamStatus/$location.id/.json?auth=$appSettings.apiKey"
+		
+	asynchttp_v1.get(checkEventStreamStatusCallback, [uri: uri], data)
+}
 
-		if(afterSunrise < oneHour) {
-			//dawn
-			lux = (long)(lux * (afterSunrise/oneHour))
-		} else if (beforeSunset < oneHour) {
-			//dusk
-			lux = (long)(lux * (beforeSunset/oneHour))
+def checkEventStreamStatusCallback(response, data) {
+	if (response.json?.streaming in [null, true]) {
+		state.eventStreamStatus = "STREAMING"
+	} else {
+		state.eventStreamStatus = response.json?.streaming
+	}
+	
+	log.info "checkEventStreamStatusCallback: Location Event Stream Status is $state.eventStreamStatus"
+	if (isLocationStreaming()) {
+		if (data.initialize) {
+			reset()
+			initializeLocation()
+		}
+	} else {
+		mute()
+	}
+}
+
+def initializeLocation() {
+	log.debug "initializing with settings: $settings"
+	synchronize()
+	subscribe()
+	runEvery3Hours(synchronize)
+	runEvery30Minutes(refreshWeather)
+	runEvery30Minutes(checkEventStreamStatus, ["data": ["initialize": false]])
+	runEvery15Minutes(pollEnergyValues)
+}
+
+def isLocationStreaming() {
+	return state.eventStreamStatus == "STREAMING"
+}
+
+def synchronize() {
+	log.info "synchronize: Location Event Stream Status is $state.eventStreamStatus"
+	
+	if (isLocationStreaming()) {
+		log.info "Synchronizing location data"
+		
+		asynchttp_v1.get(synchronizeCallback, [uri: getSensorCapabilities()])
+		asynchttp_v1.get(powerThresholdsCallback, [uri: getPowerThresholds()])
+	}
+	
+	[status: "ok", eventStreamStatus: state.eventStreamStatus]
+}
+
+def getUniqueDeviceSet() {
+	Set deviceSet = []
+	
+	[sensors, actuators, switches, temperatures, batteries].each {
+		it?.each {
+			deviceSet.add(it)
 		}
 	}
-	else {
-		//night - always set to 10 for now
-		//could do calculations for dusk/dawn too
-		lux = 10
+	
+	deviceSet
+}
+
+def isWeather(device) {
+	device.hasAttribute("weather") && device.hasAttribute("weatherIcon")
+}
+
+def pollEnergyValues() {
+	def fanout = [:]
+	
+	getUniqueDeviceSet()?.each {
+		if (it.hasCapability("Energy")) {
+			state.energyCache = state.energyCache ?: [:]
+			def value = device.currentEnergy
+			if (state.energyCache["$it.id"] != value) {
+				state.energyCache["$it.id"] = value
+				
+				fanout["properties/$location.id/devices/$it.id/energy"] = value
+			}
+		}
+	}
+	
+	if (fanout) {
+		sendToFB(fanout)
+	}
+	
+	fanout
+}
+
+def synchronizeCallback(response, data) {
+	def deviceDetails = [:]
+	def deviceProperties = [:]
+	
+	def devices = getUniqueDeviceSet()
+	log.info "synchronizeCallback devices $devices" 
+	
+	devices?.each {device ->
+		deviceProperties["$device.id"] = ["name": escapeUTF8(device.displayName)]
+		
+		deviceDetails[device.id] = [name: escapeUTF8(device.displayName), typeName: device.typeName, capabilities: [:]]
+		
+		device.capabilities.each { capability ->
+			deviceDetails[device.id]["capabilities"][capability.name] = true
+			
+			if (response.json[capability.name]) {
+				capability.attributes?.each {attribute ->
+					try {
+						deviceProperties["$device.id"]["$attribute.name"] = device.currentValue(attribute.name)
+					} catch (e) {
+						log.error("failed to read $attribute attribute from $device.id $device")
+						log.error(e)
+						
+						deviceProperties["$device.id"]["$attribute.name"] = "ERR"
+					}
+				}
+			}
+		}
+		
+		if (isWeather(device)) {
+			deviceDetails[device.id]["capabilities"]["Weather"] = true
+			getWeatherProperties().each {
+				deviceProperties["$device.id"]["$it"] = device.currentValue(it)
+			}
+		}
+		
+		if (device.hasCapability("Energy")) {
+			deviceProperties["$device.id"].energy = device.currentEnergy
+		}
+	}
+	
+	def fanout = [
+		"locations/$location.id/devices" : deviceDetails, 
+		"locations/$location.id/name" : escapeUTF8(location.name), 
+		"locations/$location.id/temperatureScale" : getTemperatureScale(), 
+		"locations/$location.id/timeZone" : location?.timeZone, 
+		"locations/$location.id/latitude" : location?.latitude, 
+		"locations/$location.id/longitude" : location?.longitude, 
+		"locations/$location.id/muted" : null,
+        "locations/$location.id/uninstalled" : null,
+		"properties/$location.id/devices/" : deviceProperties, 
+		"properties/$location.id/location" : getLocationProperties(),
+		"properties/$location.id/muted" : null,
+        "properties/$location.id/uninstalled" : null,
+		"eventStreamStatus/$location.id/streaming" : null
+	]
+	
+	try {
+		sendToFB(fanout)
+	} catch (e) {
+		def message = "method 'synchronizeCallback' failed to write to FB. $e"
+		log.error message
+		
+		if (params.full) {
+			return [error: e, data: fanout]
+		} else {
+			return httpError(400, message)
+		}
+	}
+}
+
+def getLocationProperties() {
+	[mode: location.currentMode?.id, shm: location.currentState("alarmSystemStatus")?.value, modes : getModes(), routines: getRoutines(), name: escapeUTF8(location.name), temperatureScale: getTemperatureScale()]
+}
+
+def sensorEventHandler(event) {
+	if (event.isStateChange()) {
+		def eventTO = getEventTO(event)
+		log.debug "A sensor event occurred: $eventTO"
+		
+		def isThrottleEvent = event.name in ["power"]
+		
+		if (!isThrottleEvent || isThrottleEvent && isSignificantStateChange(event.device.id, event.name, event.value)) {
+			addEventStats(event.device.id, event.name)
+			sendToFB(["properties/$location.id/devices/$event.device.id/$event.name" : event.value])
+		}
+	}
+}
+
+def addEventStats(id, event) {
+	state.stats = state.stats ?: [initiated: now(), date: new Date(), events: [:]]
+	state.stats.events[id] = state.stats.events[id] ?: [:]
+	state.stats.events[id][event] = (state.stats.events[id][event] ?: 0) + 1
+	
+	state.stats.total = (state.stats.total ?: 0) + 1
+}
+
+def isSignificantStateChange(deviceId, eventName, newValue) {
+	try {
+		def oldValue = (state?.throttle?."$deviceId-$eventName" ?: 0) as double
+		newValue = newValue as double
+		
+		/* Power change reporting threshold in percent: Set based on size of Value. */
+		def threshold = 10 as double
+		switch (Math.max(oldValue, newValue)) {
+			case { it <= 100 }:
+				threshold = state.powerThreshold0100 ?: 20
+				break
+			case { it <= 500 }:
+				threshold = state.powerThreshold0500 ?: 15
+				break
+			case { it <= 1000 }:
+				threshold = state.powerThreshold1000 ?: 5
+				break
+			case { it <= 5000 }:
+				threshold = state.powerThreshold5000 ?: 5
+				break
+			case { it > 5000 }:
+				threshold = state.powerThresholdOver ?: 3
+				break
+		}
+
+		def deltaPercent = (Math.min(oldValue,newValue) > 0) ? (((oldValue - newValue) / Math.min(oldValue,newValue)).abs() * 100).round(1) : 100
+		log.debug "Power: oldValue: $oldValue, newValue: $newValue, delta: ${deltaPercent}%, threshold: ${threshold}%"
+		if (!oldValue || !newValue || ((newValue - oldValue) / Math.min(oldValue,newValue)).abs() >= (threshold/100)) {
+			state.throttle = state.throttle ?: [:]
+			state.throttle."$deviceId-$eventName" = newValue
+			return true
+		} else {
+			return false
+		}
+	} catch (e) {
+		log.error e
+		return true
+	}
+}
+
+def locationEventHandler(event){
+	if (event.isStateChange()) {
+		
+		def eventTO = getEventTO(event)
+		log.debug "locationEventHandler $eventTO"
+		
+		addEventStats("location", event.name)
+		sendToFB(["properties/$location.id/location" : getLocationProperties()])
+	}
+}
+
+def getEventTO(event) {
+	[
+		name: event.name,
+		deviceId: event.deviceId,
+		isoDate: event.isoDate,
+		unit: event.unit,
+		value: event.value
+	]
+}
+
+def getSanitizedFBUri() {
+	def uri = appSettings.apiPath.trim()
+	
+	while (uri[-1] == '/') {
+		uri = uri[0..-2]
+	}
+	
+	uri
+}
+
+def sendToFB(data) {
+	try {
+		def params = [
+			uri: "${getSanitizedFBUri()}/.json", 
+			query: [
+				print:	"silent",
+				auth:	appSettings.apiKey
+			],
+			body: data
+		]
+		log.debug "sending data to AT"
+		asynchttp_v1.patch(null, params)
+	} catch (e) {
+		log.error ("error writing to database. $e")
+	}
+}
+
+def escapeUTF8(string) {
+    try {
+        return string.collectReplacements{it >= 128 ? "\\u" + String.format("%04X", (int) it) : null}
+    } catch (e) {
+        log.error "error escapeUTF8 $e"
+    }
+   
+    return string
+}
+
+def getModes() {
+	def modes = [:]
+	location.modes?.each { modes[it.id] = escapeUTF8(it.name) }
+	modes
+}
+
+def getRoutines() {
+	def routines = [:]
+	location?.helloHome?.getPhrases()?.each {routines[it.id] = escapeUTF8(it.label)}
+	routines
+}
+
+mappings {
+	path("/device/:id/:command/") {action: [GET: "doCommand0"]}
+	path("/device/:id/:command/:param") {action: [GET: "doCommand1"]}
+	path("/location/routine/:id") {action: [GET: "doRoutine"]}
+	path("/location/alarm/:state") {action: [GET: "doAlarm"]}
+	path("/location/mode/:id") {action: [GET: "doMode"]}
+	
+	path("/location/synchronize") {action: [GET: "synchronize"]}
+	path("/location/initialize") {action: [GET: "initialize"]}
+	path("/location/mute") {action: [GET: "mute"]}
+	path("/location/unmute") {action: [GET: "unmute"]}
+	path("/location/ping") {action: [GET: "ping"]}
+	path("/location/reset-stats") {action: [GET: "resetStats"]}
+	
+	path("/weather") {action: [GET: "getWeather"]}
+}
+
+def doCommand0() {
+	log.info "executing '/device/$params.id/$params.command' endpoint"
+	def devices = [sensors ?: [], actuators ?: [], switches ?: [], temperatures ?: [], batteries ?: []].flatten()
+	def device = devices?.find{it.id == params.id}
+	if (device) {
+		if (device.hasCommand("$params.command")) {
+			try {
+				if (params.command == "setColor") {
+					def color = [:]
+					if (params.hue != null) {
+						color.hue = params.hue as Integer
+						device.setHue(color.hue)
+					}
+					
+					if (params.saturation != null) {
+						color.saturation = params.saturation as Integer
+						device.setSaturation(color.saturation)
+					}
+					
+					if (params.hex != null) {
+						color.hex = "#" + params.hex
+					}
+					device.setColor(color)
+					log.debug "setting device color $color"
+				} else {
+					device."$params.command"()
+				}
+				log.debug "command $params.command executed successfully"
+				return [status : "ok"]
+			} catch (e) {
+				def message = "device failed to execute command $params.command, $e"
+				log.error message
+				return httpError(400, message)
+			}
+		} else {
+			def message = "device does not support command $params.command"
+			log.error message
+			return httpError(405, message)
+		}
+	} else {
+		def message = "device not found"
+		log.error message
+		return httpError(404, message)
+	}
+}
+
+def doCommand1() {
+	if( params.argType ) {
+		log.info "executing '/device/$params.id/$params.command/$params.param?argType=$params.argType' endpoint"
+	} else {
+		log.info "executing '/device/$params.id/$params.command/$params.param' endpoint"
 	}
 
-	lux
+	def devices = [sensors ?: [], actuators ?: [], switches ?: [], temperatures ?: [], batteries ?: []].flatten()
+	def device = devices?.find{it.id == params.id}
+	if (device) {
+		if (device.hasCommand("$params.command")) {
+			def arg = params.param
+			try {
+				
+				try {
+					if (params.argType == "int") {
+						arg = arg as Integer
+					} else if (params.argType == "float") {
+						arg = arg as Float
+					}
+				} catch (e) {
+					def message = "failed to cast $arg to $params.argType but will attempt to call the command with the original value"
+					log.error(message)
+					log.error(e)
+				}
+				
+				device."$params.command"(arg)
+				log.debug "command $params.command($arg) executed successfully"
+				
+				return [status : "ok"]
+			} catch (e) {
+				def message = "failed to execute command $params.command($arg) for $device.id $device, $e"
+				log.error message
+				
+				return httpError(400, message)
+			}
+		} else {
+			def message = "device $params.id does not have command $params.command"
+			log.error message
+			
+			return httpError(405, message)
+		}
+	} else {
+		def message = "device $params.id not found"
+		log.error(message)
+		
+		return httpError(404, message)
+	}
 }
+
+def doRoutine() {
+	log.info "executing 'routine/$params.id' endpoint"
+	def routine = location?.helloHome?.getPhrases()?.find {it.id == params.id}
+	if (routine) {
+		log.info "executing routine $routine"
+		location.helloHome?.execute(routine.label)
+		return [status : "ok"]
+	} else {
+		def message = "routine not found"
+		log.error message
+		
+		return httpError(404, message)
+	}
+}
+
+def doAlarm() {
+	log.info "executing 'alarm/$params.state' endpoint"
+	sendLocationEvent(name: "alarmSystemStatus" , value : params.state)
+	[status : "ok"]
+}
+
+def doMode() {
+	log.info "executing 'mode/$params.id' endpoint"
+	def mode = location.modes?.find {it.id == params.id}
+	if (mode) {
+		log.info "executing mode $mode"
+		setLocationMode(mode)
+		return [status: "ok"]
+	} else {
+		def message = "mode not found"
+		log.error message
+		
+		return httpError(404, message)
+	}
+}
+
+def mute() {
+	log.info "mute location"
+	
+	reset()
+	
+	sendToFB([
+		"locations/$location.id": [name: escapeUTF8(location.name), muted: true, uninstalled: null, timestamp: [".sv" : "timestamp"]],
+		"properties/$location.id" : [muted: true, uninstalled: null, timestamp: [".sv" : "timestamp"]],
+		"eventStreamStatus/$location.id/streaming" : false
+	])
+	
+	state.eventStreamStatus = "MUTED"
+	
+	[status: "ok"]
+}
+
+def unmute() {
+	log.info "unmute location"
+	state.eventStreamStatus = "STREAMING"
+	initializeLocation()
+	
+	[status: "ok"]
+}
+
+def ping() {
+	log.info "pinging location"
+	[status: "ok", state: state, appVersion: appVersion()]
+}
+
+def resetStats() {
+	log.info "reset stats"
+	
+	state.stats = null
+	[status: "ok"]
+}
+
+def getWeather() {
+	def response = [:]
+	if (params.features) {
+		params.features.split("+")?.each {
+			if (params.location) {
+				response[it] = getWeatherFeature(it, params.location)
+			} else {
+				response[it] = getWeatherFeature(it)
+			}
+		}
+	}
+	return response
+}
+
+/* =========== */
+/* End of File */
+/* =========== */
